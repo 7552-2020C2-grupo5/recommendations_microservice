@@ -7,7 +7,8 @@ recommendation_model = Model(
     {
         "publication_id": fields.String(
             description="The id for the recommended publication"
-        )
+        ),
+        "score": fields.Float(description="The score assigned"),
     },
 )
 

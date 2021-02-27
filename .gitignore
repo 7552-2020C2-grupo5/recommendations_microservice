@@ -146,3 +146,6 @@ Pipfile*
 
 ### SQLite ###
 *.db
+
+### Notebooks ###
+*.ipynb
