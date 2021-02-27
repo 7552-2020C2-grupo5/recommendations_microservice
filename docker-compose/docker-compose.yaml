@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+    recommendations_microservice_postgres:
+        container_name: recommendations_microservice_postgres
+        image: postgres:11.9
+        environment:
+          - POSTGRES_USER=recommendations_microservice
+          - POSTGRES_PASSWORD=recommendations_microservice
+          - POSTGRES_DB=recommendations_microservice
+          - PGDATA=/var/lib/postgresql/data/pgdata
+        ports:
+          - 54321:5432
+        volumes:
+          - /var/lib/postgresql/data/pgdata
+        logging:
+            options:
+                max-size: 10m
+                max-file: "3"
+    recommendations_microservice_api:
+      container_name: recommendations_microservice_api
+      depends_on:
+        - recommendations_microservice_postgres
+      build:
+        context: ../
+        dockerfile: Dockerfile
+      ports:
+        - "5000:5000"
+      environment:
+        - DATABASE_URL=postgres://recommendations_microservice:recommendations_microservice@recommendations_microservice_postgres/recommendations_microservice
+      entrypoint: /app/docker-compose/api-entrypoint.sh
