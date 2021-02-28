@@ -6,7 +6,7 @@ recommendation_model = Model(
     "Recommendations",
     {
         "publication_id": fields.String(
-            description="The id for the recommended publication"
+            description="The id for the recommended publication."
         ),
         "score": fields.Float(description="The score assigned"),
     },
@@ -15,10 +15,9 @@ recommendation_model = Model(
 user_recommendations_model = Model(
     "User recommendations",
     {
-        "user_id": fields.Integer(description="The user id"),
         "recommendations": fields.List(
             fields.Nested(recommendation_model),
-            description="Recommendations for the user",
+            description="Recommendations offered according to method.",
         ),
     },
 )
