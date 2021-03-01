@@ -4,8 +4,9 @@
 import logging
 
 import requests
-from notifications_microservice.cfg import config
-from notifications_microservice.exceptions import (
+
+from recommendations_microservice.cfg import config
+from recommendations_microservice.exceptions import (
     InvalidEnvironment,
     ServerTokenError,
     UnsetServerToken,

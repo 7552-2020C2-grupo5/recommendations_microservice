@@ -1,8 +1,9 @@
 """Token namespace module."""
 
 from flask_restx import Namespace, Resource, fields
-from notifications_microservice.constants import BOOKBNB_TOKEN
-from notifications_microservice.exceptions import (
+
+from recommendations_microservice.constants import BOOKBNB_TOKEN
+from recommendations_microservice.exceptions import (
     InvalidEnvironment,
     ServerTokenError,
     UnsetServerToken,
