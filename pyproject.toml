@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "recommendations_microservice"
-version = "2.0.0"
+version = "3.0.0"
 description = "Make great recommendations for bookbnb."
 authors = ["75.52 - 2020C2 - G5 <imermet@fi.uba.ar>"]
 
@@ -26,6 +26,7 @@ pandas = "^1.2.2"
 numpy = "^1.20.1"
 scikit-learn = "^0.24.1"
 scipy = "^1.6.1"
+requests = "^2.25.1"
 
 [tool.poetry.dev-dependencies]
 nox = "^2020.8.22"
