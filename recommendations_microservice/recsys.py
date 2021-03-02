@@ -68,12 +68,13 @@ def latest_publications(max_recommendations):
     url = config.publications.db()
     engine = create_engine(url)
     all_publications = pd.read_sql(
-        f"""select id as publication_id, publication_date
+        """select id as publication_id, publication_date
     from public.publication
     where blocked = false and blockchain_status = 'CONFIRMED'
     order by publication_date desc
-    limit {max_recommendations}""",
+    limit %(max_recommendations)s""",
         engine,
+        params={"max_recommendations": max_recommendations},
     )
     all_publications['days'] = (
         datetime.utcnow() - all_publications.publication_date
