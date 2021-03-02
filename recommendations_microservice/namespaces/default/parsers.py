@@ -2,8 +2,8 @@
 
 from flask_restx import reqparse
 
-popular_recommendation_parser = reqparse.RequestParser()
-popular_recommendation_parser.add_argument(
+base_recommendation_parser = reqparse.RequestParser()
+base_recommendation_parser.add_argument(
     "max", help="Max recommendations to fetch", type=int, default=10
 )
 
