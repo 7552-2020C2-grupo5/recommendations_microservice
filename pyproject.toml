@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "recommendations_microservice"
-version = "3.2.0"
+version = "3.2.1"
 description = "Make great recommendations for bookbnb."
 authors = ["75.52 - 2020C2 - G5 <imermet@fi.uba.ar>"]
 
