@@ -76,6 +76,8 @@ def latest_publications(max_recommendations):
         engine,
         params={"max_recommendations": max_recommendations},
     )
+    if all_publications.empty:
+        raise RecommendationsUnavailable
     all_publications['days'] = (
         datetime.utcnow() - all_publications.publication_date
     ).dt.total_seconds() / 86400
