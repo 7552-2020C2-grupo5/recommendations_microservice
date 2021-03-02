@@ -1,4 +1,6 @@
 """Recsys module"""
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
@@ -42,19 +44,42 @@ def similar_publications(publication_id, max_recommendations):
 def most_popular(max_recommendations):
     url = config.bookings.db()
     engine = create_engine(url)
-    df = pd.read_sql("select id, publication_id from public.booking", engine)
+    df = pd.read_sql(
+        "select id, publication_id, booking_date from public.booking", engine
+    )
     if df.empty:
         raise RecommendationsUnavailable
+
+    df['days'] = (datetime.utcnow() - df.booking_date).dt.days
+    df['exp'] = 1 / (1 + df.days)
+    df['exp_score'] = np.exp(df.exp) / np.e
     return (
         df.groupby("publication_id")
-        .agg("count")
-        .astype("float")
-        .rename(columns={"id": "score"})
-        .sort_values("score", ascending=False)
+        .agg({"exp_score": "sum"})
         .reset_index()
+        .rename(columns={"exp_score": "score"})
+        .sort_values("score", ascending=False)
         .head(max_recommendations)
         .to_dict(orient="records")
     )
+
+
+def latest_publications(max_recommendations):
+    url = config.publications.db()
+    engine = create_engine(url)
+    all_publications = pd.read_sql(
+        f"""select id as publication_id, publication_date
+    from public.publication
+    where blocked = false and blockchain_status = 'CONFIRMED'
+    order by publication_date desc
+    limit {max_recommendations}""",
+        engine,
+    )
+    all_publications['days'] = (
+        datetime.utcnow() - all_publications.publication_date
+    ).dt.total_seconds() / 86400
+    all_publications["score"] = 1 / all_publications.days
+    return all_publications[['publication_id', 'score']].to_dict(orient="records")
 
 
 def reviews_cf(user_id, max_recommendations):

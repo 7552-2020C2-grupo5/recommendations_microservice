@@ -4,6 +4,7 @@ from flask_restx import Namespace, Resource
 
 from recommendations_microservice.exceptions import RecommendationsUnavailable
 from recommendations_microservice.recsys import (
+    latest_publications,
     most_popular,
     reviews_cf,
     similar_publications,
@@ -12,7 +13,7 @@ from recommendations_microservice.recsys import (
 
 from .models import recommendation_model, user_recommendations_model
 from .parsers import (
-    popular_recommendation_parser,
+    base_recommendation_parser,
     similarity_parser,
     user_recommendation_parser,
 )
@@ -42,14 +43,30 @@ class PublicationsRecommendationResource(Resource):
 @ns.route('/popular')
 class PopularRecommendationResource(Resource):
     @ns.doc('get_popular_recommendations')
-    @ns.expect(popular_recommendation_parser)
+    @ns.expect(base_recommendation_parser)
     @ns.marshal_with(user_recommendations_model)
     @ns.response(204, "No recommendations available")
     def get(self):
         """Get most popular publications recommended."""
-        args = popular_recommendation_parser.parse_args()
+        args = base_recommendation_parser.parse_args()
         try:
             recommendations = most_popular(args.max)
+        except RecommendationsUnavailable:
+            return {"No data was found for requested user"}, 204
+        return {"recommendations": recommendations}
+
+
+@ns.route('/latest')
+class LatestRecommendationResource(Resource):
+    @ns.doc('get_latest_recommendations')
+    @ns.expect(base_recommendation_parser)
+    @ns.marshal_with(user_recommendations_model)
+    @ns.response(204, "No recommendations available")
+    def get(self):
+        """Get latest publications recommended."""
+        args = base_recommendation_parser.parse_args()
+        try:
+            recommendations = latest_publications(args.max)
         except RecommendationsUnavailable:
             return {"No data was found for requested user"}, 204
         return {"recommendations": recommendations}

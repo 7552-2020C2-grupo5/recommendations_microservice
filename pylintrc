@@ -15,6 +15,7 @@ disable =
     fixme,
     lost-exception,
     using-constant-test,
+    E1101
 
 [FORMAT]
 
