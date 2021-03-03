@@ -5,11 +5,23 @@ import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
 from sklearn.preprocessing import MinMaxScaler
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from surprise import NMF, Dataset, Reader
 
 from recommendations_microservice.cfg import config
 from recommendations_microservice.exceptions import RecommendationsUnavailable
+
+
+def get_active_publications():
+    publications_url = config.publications.db()
+    publications_engine = create_engine(publications_url)
+    with publications_engine.connect() as conn:
+        return [
+            x[0]
+            for x in conn.execute(
+                text("select id from public.publication where blocked = false")
+            )
+        ]
 
 
 def similar_publications(publication_id, max_recommendations):
@@ -47,6 +59,7 @@ def most_popular(max_recommendations):
     df = pd.read_sql(
         "select id, publication_id, booking_date from public.booking", engine
     )
+    df = df[df.publication_id.isin(get_active_publications())]
     if df.empty:
         raise RecommendationsUnavailable
 
@@ -102,7 +115,14 @@ def reviews_cf(user_id, max_recommendations):
     testset = [x for x in testset if x[0] == user_id]
     algo = NMF()
     algo.fit(trainset)
-    retval = [{"publication_id": x.iid, "score": x.est} for x in algo.test(testset)]
+
+    active_publications = get_active_publications()
+
+    retval = [
+        {"publication_id": x.iid, "score": x.est}
+        for x in algo.test(testset)
+        if x.iid in active_publications
+    ]
     retval = sorted(retval, key=lambda x: x.get("score"), reverse=True)
     return retval[:max_recommendations]
 
@@ -124,6 +144,13 @@ def stars_cf(user_id, max_recommendations):
     testset = [x for x in testset if x[0] == 0]
     algo = NMF()
     algo.fit(trainset)
-    retval = [{"publication_id": x.iid, "score": x.est} for x in algo.test(testset)]
+
+    active_publications = get_active_publications()
+
+    retval = [
+        {"publication_id": x.iid, "score": x.est}
+        for x in algo.test(testset)
+        if x.iid in active_publications
+    ]
     retval = sorted(retval, key=lambda x: x.get("score"), reverse=True)
     return retval[:max_recommendations]
