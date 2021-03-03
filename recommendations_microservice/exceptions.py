@@ -7,7 +7,3 @@ class RecommendationsUnavailable(Exception):
 
 class ServerTokenError(Exception):
     pass
-
-
-class UnsetServerToken(Exception):
-    pass
